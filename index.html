@@ -86,6 +86,124 @@
 <main>
   <!-- Leidinggeven & Taken -->
   <section id="tasksSection">
+    <!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puntenboek - Smartschool Stijl</title>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f3f7; }
+  header { background:#2a3f54; color:white; padding:15px 20px; text-align:center; font-size:1.5rem; }
+  main { max-width:1200px; margin:20px auto; padding:0 20px; }
+  h2 { border-bottom:2px solid #2a3f54; padding-bottom:5px; }
+  form { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+  form input, form select, form button { padding:8px; border-radius:4px; border:1px solid #ccc; }
+  form button { background:#2a3f54; color:white; border:none; cursor:pointer; }
+  form button:hover { background:#1f2d3f; }
+  .student-card { background:white; padding:15px; margin-bottom:15px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+  .student-card h3 { margin:0 0 10px; }
+  ul { list-style:none; padding-left:0; }
+  li { padding:6px 4px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center; }
+  li button { background:none; border:none; color:red; cursor:pointer; font-size:1rem; }
+</style>
+</head>
+<body>
+
+<header>Puntenboek - Smartschool Stijl</header>
+<main>
+  <h2>Voeg een score toe</h2>
+  <form id="gradeForm">
+    <input type="text" id="studentName" placeholder="Naam leerling" required>
+    <input type="text" id="subject" placeholder="Vak" required>
+    <input type="number" id="score" placeholder="Score" required min="0" max="100">
+    <button type="submit">Toevoegen</button>
+  </form>
+
+  <div id="gradesContainer"></div>
+</main>
+
+<script>
+const gradesKey = 'smartschoolGrades';
+
+// Laad grades uit localStorage
+function loadGrades() {
+  return JSON.parse(localStorage.getItem(gradesKey) || '{}');
+}
+
+// Sla grades op in localStorage
+function saveGrades(data) {
+  localStorage.setItem(gradesKey, JSON.stringify(data));
+}
+
+// Render alle leerlingen en hun scores
+function renderGrades() {
+  const grades = loadGrades();
+  const container = document.getElementById('gradesContainer');
+  container.innerHTML = '';
+
+  if(Object.keys(grades).length === 0) {
+    container.innerHTML = '<p>Geen scores ingevoerd</p>';
+    return;
+  }
+
+  for(const student in grades) {
+    const card = document.createElement('div');
+    card.className = 'student-card';
+
+    const header = document.createElement('h3');
+    header.innerText = student;
+    card.appendChild(header);
+
+    const ul = document.createElement('ul');
+    grades[student].forEach((entry, index) => {
+      const li = document.createElement('li');
+      li.innerHTML = `${entry.subject}: ${entry.score}/100 
+        <button onclick="deleteGrade('${student}', ${index})">✖</button>`;
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+    container.appendChild(card);
+  }
+}
+
+// Voeg een nieuwe score toe
+function addGrade(student, subject, score) {
+  const grades = loadGrades();
+  if(!grades[student]) grades[student] = [];
+  grades[student].push({subject, score: parseFloat(score)});
+  saveGrades(grades);
+  renderGrades();
+}
+
+// Verwijder score
+function deleteGrade(student, index) {
+  const grades = loadGrades();
+  grades[student].splice(index,1);
+  if(grades[student].length === 0) delete grades[student];
+  saveGrades(grades);
+  renderGrades();
+}
+
+// Formulier event
+document.getElementById('gradeForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const student = document.getElementById('studentName').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  const score = document.getElementById('score').value;
+  if(student && subject && score !== '') {
+    addGrade(student, subject, score);
+    e.target.reset();
+  }
+});
+
+// Initial render
+renderGrades();
+</script>
+
+</body>
+</html>
+
     <h2>Leidinggeven & Taken</h2>
     <form id="taskForm">
       <input type="text" id="taskInput" placeholder="Nieuwe taak omschrijving" required />
